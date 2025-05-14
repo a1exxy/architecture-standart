@@ -1,0 +1,59 @@
+@startuml
+title Диаграмма контекта To Be
+
+!include <C4/C4_Container>
+LAYOUT_LEFT_RIGHT()
+' LAYOUT_TOP_DOWN()
+!$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
+
+!include $ICONURL/common.puml
+!include $ICONURL/devicons/react.puml
+!include $ICONURL/devicons/java.puml
+!include $ICONURL/devicons2/apachekafka_original.puml
+!include $ICONURL/devicons/php.puml
+!include $ICONURL/devicons/msql_server.puml
+!include $ICONURL/devicons/postgresql.puml
+!include $ICONURL/devicons/mysql.puml
+!include $ICONURL/devicons/dotnet.puml
+!include $ICONURL/font-awesome-5/database.puml
+!include $ICONURL/material/apps.puml
+
+Person_Ext(client, "Клиент")
+System_Ext(telecom, "Телеком Оператор", "Software System")
+
+
+
+System_Boundary(bank, "Банк 'Стандарт'") {
+    Person(cred_mgr, "Менеджер по кредитам")
+    Person(depos_mgr, "Менеджер по депозитам")
+    Person(call_emp, "Сотрудник кол-центра")
+    Person(office_emp, "Сотрудник фронт офиса")
+
+    Container(banking, "Интернет-банк", "Software System")
+    Container(abs, "Автоматизированная банковская система (АБС)", "Software System", "Включая микросервисы 'Справичники' и 'Депозиты'") 
+    Container(call_center, "Система кол-центра", "Software System")
+    Container(site, "Публичный сайт банка", "Software System") 
+    Container(sms_gw, "СМС-шлюз телеком-оператора", "Software System") 
+
+    Rel(client, banking, "")
+    Rel(client, site, "")
+    Rel(client, call_emp, "")
+    Rel(client, office_emp, "")
+
+    Rel(banking, abs, "")
+    Rel(site, abs, "")
+    Rel(call_emp, call_center, "")
+    Rel(call_center, abs, "")
+    Rel(office_emp, abs, "")
+    Rel(cred_mgr, abs, "")
+    Rel(depos_mgr, abs, "")
+    Rel(abs, sms_gw, "")
+    Rel(sms_gw, telecom, "")
+    Rel_L(telecom, client, "")
+
+
+}
+
+SHOW_LEGEND()
+
+@enduml
