@@ -1,0 +1,83 @@
+@startuml
+title Диаграмма контейнеров As Is
+
+!include <C4/C4_Container>
+LAYOUT_LEFT_RIGHT()
+!$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
+
+!include $ICONURL/common.puml
+!include $ICONURL/devicons/react.puml
+!include $ICONURL/devicons/java.puml
+!include $ICONURL/devicons2/apachekafka_original.puml
+!include $ICONURL/devicons/php.puml
+!include $ICONURL/devicons/msql_server.puml
+!include $ICONURL/devicons/postgresql.puml
+!include $ICONURL/devicons/mysql.puml
+!include $ICONURL/devicons/dotnet.puml
+!include $ICONURL/font-awesome-5/database.puml
+!include $ICONURL/material/apps.puml
+
+Person_Ext(client, "Клиент")
+System_Ext(telecom, "Телеком Оператор", "Software System")
+
+System_Boundary(call_center_ext, "Партнерский кол-центр") {
+    Person_Ext(call_ext_emp, "Сотрудник кол-центра",)
+    System_Ext(call_ext_sys, "Система партнерского кол-центра", "Software System")
+    Rel(call_ext_emp, call_ext_sys, "", "")
+}
+
+System_Boundary(bank, "Банк 'Стандарт'") {
+    Person(cred_mgr, "Менеджер по кредитам")
+    Person(depos_mgr, "Менеджер по депозитам")
+    Person(call_emp, "Сотрудник кол-центра")
+    Person(office_emp, "Сотрудник фронт офиса")
+    
+    Boundary(banking, "Интернет-банк", "Software System"){
+        Container(inet_banking, "Приложение Интернет-банкинга", "ASP.NET MVC 4.5", "", $sprite="dotnet")
+        ContainerDb(inet_banking_db, "БД Интернет-банкинга", "MS SQL", "", $sprite="msql_server")
+        Rel(inet_banking, inet_banking_db, "")
+    }
+
+    Boundary(abs, "Автоматизированная банковская система (АБС)", "Software System") {
+        Container(delphi, "Толстый клиент", "Delphi", $sprite="apps") 
+        ContainerDb(oracle, "АБС БД", "Oracle", "Основная логика работы системы реализована процедурами на PL-SQL", $sprite="database")
+        Rel(delphi, oracle, "")
+    }
+
+    Boundary(call_center, "Система кол-центра", "Software System"){
+        Container(call_center_front, "Фронт системы кол-центра", "React", $sprite="react") 
+        Container(call_center_back, "Бек системы кол-центра", "Java Spring Boot", $sprite="java") 
+        ContainerDb(call_center_db, "БД системы кол-центра", "Postgresql", $sprite="postgresql") 
+        Rel(call_center_front, call_center_back, "")
+        Rel(call_center_back, call_center_db, "")
+        Rel(call_emp, call_center_front, "")
+    }
+
+    Boundary(site, "Публичный сайт банка", "Software System") {
+        Container(site_front, "Фронт сайта", "React", $sprite="react")
+        Container(site_back, "Бек сайта", "PHP", $sprite="php")
+        Rel(site_front, site_back, "")
+    }
+
+    Container(sms_gw, "СМС-шлюз телеком-оператора", "Software System") 
+    Rel(oracle, sms_gw, "отправляет СМС-оповещение клиенту")
+    
+    Rel(call_center_back, oracle, "")
+    Rel(depos_mgr, delphi, "обрабатывают заявки из кол-центра в АБС")
+    Rel(office_emp, delphi, "создаёт депозит, загружает подписанные документы")
+}
+
+Rel(client, site_front, "")
+Rel(client, inet_banking, "")
+Rel(client, call_emp, "")
+Rel(client, call_ext_emp, "")
+Rel(client, office_emp, "")
+
+Rel(call_ext_sys, oracle, "", "")
+Rel(sms_gw, telecom, "", "")
+
+SHOW_LEGEND()
+
+' ContainerQueue(broker, "Broker", "kafka", "Очередь сообщений", $sprite="apachekafka_original")
+' Container(internalApp, "Рабочее место сотрудника", "React", $sprite="react") 
+@enduml
